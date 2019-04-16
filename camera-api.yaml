@@ -1,0 +1,106 @@
+---
+swagger: "2.0"
+info:
+  description: "No description"
+  version: "1.0.0"
+  title: "Camera API"
+  contact: {}
+host: "camera"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /image:
+    get:
+      summary: "Get image."
+      description: "Retrieve the current camera image."
+      produces:
+      - "image/jpeg"
+      parameters: []
+      responses:
+        200:
+          description: "Status 200"
+          schema:
+            type: "string"
+            format: "binary"
+            description: "The current camera image."
+  /settings:
+    get:
+      summary: "Get settings."
+      description: "Retrieve a set of the exposed settings of the camera."
+      parameters: []
+      responses:
+        200:
+          description: "Status 200"
+          schema:
+            type: "array"
+            description: "Set of the exposed settings of the camera."
+            items:
+              type: "string"
+  /settings/{setting}:
+    get:
+      summary: "Get setting value."
+      description: "Retrieve the set value of the specified setting."
+      parameters: []
+      responses:
+        200:
+          description: "Status 200"
+          schema:
+            $ref: "#/definitions/SettingValue"
+        404:
+          description: "The specified setting is not available."
+    put:
+      summary: "Set setting value."
+      description: "Update the value of the specified setting.\nRefer to /settings/{setting}/values\
+        \ for the valid values of the specified setting.\n"
+      consumes: []
+      parameters:
+      - name: "body"
+        in: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/SettingValue"
+      responses:
+        204:
+          description: "The setting value has been successfully updated."
+        400:
+          description: "Invalid value provided for this setting."
+        404:
+          description: "The specified setting is not available."
+    parameters:
+    - name: "setting"
+      in: "path"
+      required: true
+      type: "string"
+  /settings/{setting}/values:
+    get:
+      summary: "Get setting values."
+      description: "Retrieve a set of valid values for the specified setting."
+      parameters: []
+      responses:
+        200:
+          description: "Status 200"
+          schema:
+            type: "array"
+            description: "Set of valid values for the specified setting"
+            items:
+              type: "string"
+        404:
+          description: "The specified setting is unavailable."
+    parameters:
+    - name: "setting"
+      in: "path"
+      required: true
+      type: "string"
+definitions:
+  SettingValue:
+    type: "object"
+    required:
+    - "value"
+    properties:
+      value:
+        type: "string"
+        description: "The setting value."
