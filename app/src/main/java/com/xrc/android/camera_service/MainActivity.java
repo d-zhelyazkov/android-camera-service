@@ -2,7 +2,6 @@ package com.xrc.android.camera_service;
 
 import android.app.Activity;
 import android.os.Bundle;
-import com.xrc.android.camera_service.resource.ImageResource;
 
 public class MainActivity extends Activity {
 
@@ -40,8 +39,6 @@ public class MainActivity extends Activity {
     private void init() {
 
         server.init();
-
-        ImageResource.dummyImage = getDrawable(R.drawable.dummy);
     }
 
 }
