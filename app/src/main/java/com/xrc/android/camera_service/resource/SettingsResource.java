@@ -11,7 +11,7 @@ public class SettingsResource extends ServerResource {
 
     @Get(MediaType.APPLICATION_JSON)
     String[] getSettings() throws ResourceException {
-        return new String[] {};
+        return new String[] { "ISO", "Exposure", "Shutter speed" };
     }
 
 }
