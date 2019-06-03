@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
@@ -60,6 +61,9 @@ public class MainActivity extends Activity {
 
         cameraController.init(this);
         server.init();
+
+        TextView serverUrlsView = findViewById(R.id.server_urls);
+        ServerUrisDisplay.display(serverUrlsView);
     }
 
 }

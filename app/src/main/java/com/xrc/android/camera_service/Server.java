@@ -11,9 +11,9 @@ import java.util.List;
 
 class Server {
 
-    private static final Protocol PROTOCOL = Protocol.HTTP;
+    static final Protocol PROTOCOL = Protocol.HTTP;
 
-    private static final int PORT = 9001;
+    static final int PORT = 9001;
 
     private final Component restletComponent = new Component();
     void init() {
@@ -35,4 +35,5 @@ class Server {
     void stop() throws Exception {
         restletComponent.stop();
     }
+
 }
