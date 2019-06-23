@@ -2,6 +2,7 @@ package com.xrc.android.camera_service;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -10,6 +11,8 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.Image;
+import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
@@ -20,20 +23,21 @@ import com.xrc.android.example.SizeAreaComparator;
 import com.xrc.android.view.AbstractSurfaceTextureListener;
 import com.xrc.lang.CloseableUtils;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
-class CameraController {
+public class CameraController {
 
     private static final Size OPTIMAL_PREVIEW_SIZE = new Size(1280, 720);
 
     private static final Map<Integer, CameraController> instances = new ConcurrentHashMap<>();
 
-    static CameraController getInstance(int cameraType) {
+    public static CameraController getInstance(int cameraType) {
         return instances.computeIfAbsent(cameraType, CameraController::new);
     }
 
@@ -54,6 +58,10 @@ class CameraController {
     private CameraCaptureSession cameraSession;
 
     private CaptureRequest.Builder previewRequest;
+
+    private ImageReader captureImageReader;
+
+    private CaptureRequest.Builder captureRequest;
 
     private int displayRotation;
 
@@ -91,6 +99,33 @@ class CameraController {
 
         closeCamera();
         stopBackgroundThread();
+    }
+
+    public byte[] captureJPEGImage() {
+        Image image = null;
+        try {
+            CountDownLatch imageCapturedLatch = new CountDownLatch(1);
+
+            captureImageReader.setOnImageAvailableListener(
+                    reader -> imageCapturedLatch.countDown(),
+                    backgroundHandler);
+
+            cameraSession.capture(captureRequest.build(), null, backgroundHandler);
+
+            imageCapturedLatch.await();
+
+            image = captureImageReader.acquireLatestImage();
+            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            byte[] bytes = new byte[buffer.remaining()];
+            buffer.get(bytes);
+
+            return bytes;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            CloseableUtils.closeQuietly(image);
+        }
     }
 
     private void setUpCamera() throws CameraAccessException, SecurityException {
@@ -143,7 +178,14 @@ class CameraController {
         previewRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         previewRequest.addTarget(previewSurface);
 
-        cameraDevice.createCaptureSession(Collections.singletonList(previewSurface),
+        captureImageReader = ImageReader.newInstance(previewSize.getWidth(), previewSize.getHeight(),
+                ImageFormat.JPEG, /*maxImages*/1);
+        Surface captureSurface = captureImageReader.getSurface();
+        captureRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+        captureRequest.addTarget(captureSurface);
+
+        cameraDevice.createCaptureSession(
+                Arrays.asList(previewSurface, captureSurface),
                 new CameraCaptureSession.StateCallback() {
 
                     @Override
@@ -214,6 +256,7 @@ class CameraController {
     private void closeCamera() {
         CloseableUtils.closeQuietly(cameraSession);
         CloseableUtils.closeQuietly(cameraDevice);
+        CloseableUtils.closeQuietly(captureImageReader);
     }
 
     /**

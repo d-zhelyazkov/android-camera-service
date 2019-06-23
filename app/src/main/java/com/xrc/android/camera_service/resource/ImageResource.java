@@ -1,10 +1,10 @@
 package com.xrc.android.camera_service.resource;
 
+import android.hardware.camera2.CameraCharacteristics;
+import com.xrc.android.camera_service.CameraController;
 import com.xrc.restlet.MediaType;
-import org.restlet.data.Status;
 import org.restlet.representation.ByteArrayRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 public class ImageResource extends ServerResource {
@@ -13,7 +13,12 @@ public class ImageResource extends ServerResource {
 
     @Get(MediaType.IMAGE_JPEG)
     ByteArrayRepresentation getImage() {
-        throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);
+
+        CameraController cameraController =
+                CameraController.getInstance(CameraCharacteristics.LENS_FACING_BACK);
+        byte[] image = cameraController.captureJPEGImage();
+
+        return new ByteArrayRepresentation(image, org.restlet.data.MediaType.IMAGE_JPEG);
     }
 
 }
