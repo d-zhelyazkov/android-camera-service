@@ -1,15 +1,25 @@
 package com.xrc.android.camera_service;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraCharacteristics;
 import android.os.Bundle;
 
 public class MainActivity extends Activity {
+
+    private static final int CAMERA_PERMISSION_REQUEST = 1337;
+
+    private final CameraController cameraController =
+            CameraController.getInstance(CameraCharacteristics.LENS_FACING_BACK);
 
     private final Server server = new Server();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.main_layout);
 
         init();
     }
@@ -18,8 +28,15 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] { Manifest.permission.CAMERA }, CAMERA_PERMISSION_REQUEST);
+            return;
+        }
+
         try {
+            cameraController.startPreview();
             server.start();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -30,7 +47,10 @@ public class MainActivity extends Activity {
         super.onPause();
 
         try {
+            cameraController.stopPreview();
             server.stop();
+
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -38,6 +58,7 @@ public class MainActivity extends Activity {
 
     private void init() {
 
+        cameraController.init(this);
         server.init();
     }
 
