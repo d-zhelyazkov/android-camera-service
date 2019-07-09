@@ -1,9 +1,9 @@
 package com.xrc.android.camera_service;
 
-import com.xrc.android.camera_service.resource.ImageResource;
-import com.xrc.android.camera_service.resource.SettingsResource;
-import com.xrc.android.camera_service.resource.SettingResource;
-import com.xrc.android.camera_service.resource.SettingValuesResource;
+import com.xrc.android.camera_service.resources.ImageResource;
+import com.xrc.android.camera_service.resources.SettingsResource;
+import com.xrc.android.camera_service.resources.SettingResource;
+import com.xrc.android.camera_service.resources.SettingValueResource;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
@@ -25,7 +25,7 @@ class WebApplication extends Application {
         apiRouter.attach(ImageResource.PATH, ImageResource.class);
         apiRouter.attach(SettingsResource.PATH, SettingsResource.class);
         apiRouter.attach(SettingResource.PATH, SettingResource.class);
-        apiRouter.attach(SettingValuesResource.PATH, SettingValuesResource.class);
+        apiRouter.attach(SettingValueResource.PATH, SettingValueResource.class);
 
         return apiRouter;
     }

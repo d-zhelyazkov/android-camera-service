@@ -1,4 +1,4 @@
-package com.xrc.android.camera_service.resource;
+package com.xrc.android.camera_service.resources;
 
 import android.hardware.camera2.CameraCharacteristics;
 import com.xrc.android.camera_service.CameraController;

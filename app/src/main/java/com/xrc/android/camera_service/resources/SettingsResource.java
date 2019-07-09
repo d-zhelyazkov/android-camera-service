@@ -1,4 +1,4 @@
-package com.xrc.android.camera_service.resource;
+package com.xrc.android.camera_service.resources;
 
 import com.xrc.restlet.MediaType;
 import org.restlet.resource.Get;

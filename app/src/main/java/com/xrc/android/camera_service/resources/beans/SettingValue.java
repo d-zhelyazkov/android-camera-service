@@ -1,6 +1,6 @@
-package com.xrc.android.camera_service.resource;
+package com.xrc.android.camera_service.resources.beans;
 
-class SettingValue {
+public class SettingValue {
     private String value;
 
     public SettingValue() {
