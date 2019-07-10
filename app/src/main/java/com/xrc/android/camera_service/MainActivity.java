@@ -32,27 +32,30 @@ public class MainActivity extends Activity {
             return;
         }
 
-        try {
-            cameraController.startPreview();
-            server.start();
+        Factory.getSecondaryThreadHandler().post(() -> {
+            try {
+                cameraController.startPreview();
+                server.start();
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        try {
-            cameraController.stopPreview();
-            server.stop();
+        Factory.getSecondaryThreadHandler().post(() -> {
+            try {
+                server.stop();
+                cameraController.stopPreview();
 
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private void init() {
@@ -62,6 +65,7 @@ public class MainActivity extends Activity {
 
         TextView serverUrlsView = findViewById(R.id.server_urls);
         ServerUrisDisplay.display(serverUrlsView);
+
     }
 
 }

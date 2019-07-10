@@ -20,6 +20,7 @@ import android.view.Surface;
 import com.xrc.android.example.AutoFitTextureView;
 import com.xrc.android.example.CameraTextureTransformer;
 import com.xrc.android.example.SizeAreaComparator;
+import com.xrc.android.os.Handlers;
 import com.xrc.android.view.AbstractSurfaceTextureListener;
 import com.xrc.lang.CloseableUtils;
 
@@ -68,23 +69,22 @@ public class CameraController {
         displayRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
     }
 
-    void startPreview() throws CameraAccessException {
+    void startPreview() throws CameraAccessException, InterruptedException {
 
         openBackgroundThread();
-        if (cameraView.isAvailable()) {
-            setUpCamera();
-        } else {
+
+        if (!cameraView.isAvailable()) {
+            CountDownLatch viewAvailable = new CountDownLatch(1);
             cameraView.setSurfaceTextureListener(new AbstractSurfaceTextureListener() {
                 @Override
                 public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-                    try {
-                        setUpCamera();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
+                    viewAvailable.countDown();
                 }
             });
+            viewAvailable.await();
         }
+
+        setUpCamera();
     }
 
     void stopPreview() {
@@ -120,7 +120,7 @@ public class CameraController {
         }
     }
 
-    private void setUpCamera() throws CameraAccessException, SecurityException {
+    private void setUpCamera() throws CameraAccessException, SecurityException, InterruptedException {
         String cameraId = findCameraId();
 
         CameraCharacteristics cameraCharacteristics =
@@ -131,23 +131,21 @@ public class CameraController {
 
         Size[] outputSizes = streamConfigurationMap.getOutputSizes(SurfaceTexture.class);
         previewSize = resolveOptimalPreviewSize(outputSizes);
-        cameraView.setAspectRatio(previewSize);
+        Handlers.getMainThreadHandler().post(() -> cameraView.setAspectRatio(previewSize));
 
         CameraTextureTransformer cameraTextureTransformer =
                 new CameraTextureTransformer(cameraView, previewSize, displayRotation);
         cameraTextureTransformer.configureTransform(cameraView.getWidth(), cameraView.getHeight());
 
+        CountDownLatch cameraOpened = new CountDownLatch(1);
         cameraManager.openCamera(
                 cameraId,
                 new CameraDevice.StateCallback() {
                     @Override
                     public void onOpened(CameraDevice device) {
-                        try {
-                            cameraDevice = device;
-                            createPreviewSession();
-                        } catch (CameraAccessException e) {
-                            throw new RuntimeException(e);
-                        }
+                        cameraDevice = device;
+
+                        cameraOpened.countDown();
                     }
 
                     @Override
@@ -161,9 +159,13 @@ public class CameraController {
                     }
                 },
                 backgroundHandler);
+        cameraOpened.await();
+
+        createPreviewSession();
+
     }
 
-    private void createPreviewSession() throws CameraAccessException {
+    private void createPreviewSession() throws CameraAccessException, InterruptedException {
         SurfaceTexture surfaceTexture = cameraView.getSurfaceTexture();
         surfaceTexture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
         Surface previewSurface = new Surface(surfaceTexture);
@@ -176,26 +178,27 @@ public class CameraController {
         captureRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         captureRequest.addTarget(captureSurface);
 
+        CountDownLatch sessionCreated = new CountDownLatch(1);
         cameraDevice.createCaptureSession(
                 Arrays.asList(previewSurface, captureSurface),
                 new CameraCaptureSession.StateCallback() {
 
                     @Override
                     public void onConfigured(CameraCaptureSession captureSession) {
-                        try {
-                            cameraSession = captureSession;
-                            setRepeatingPreviewRequest();
+                        cameraSession = captureSession;
 
-                        } catch (CameraAccessException e) {
-                            throw new RuntimeException(e);
-                        }
+                        sessionCreated.countDown();
                     }
 
                     @Override
                     public void onConfigureFailed(CameraCaptureSession captureSession) {
                         throw new RuntimeException("Camera session configuration failed.");
                     }
-                }, backgroundHandler);
+                },
+                backgroundHandler);
+        sessionCreated.await();
+
+        setRepeatingPreviewRequest();
     }
 
     private void setRepeatingPreviewRequest() throws CameraAccessException {
