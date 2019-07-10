@@ -25,21 +25,13 @@ import com.xrc.lang.CloseableUtils;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 public class CameraController {
 
     private static final Size OPTIMAL_PREVIEW_SIZE = new Size(1280, 720);
-
-    private static final Map<Integer, CameraController> instances = new ConcurrentHashMap<>();
-
-    public static CameraController getInstance(int cameraType) {
-        return instances.computeIfAbsent(cameraType, CameraController::new);
-    }
 
     private final int cameraType;
 
@@ -65,7 +57,7 @@ public class CameraController {
 
     private int displayRotation;
 
-    private CameraController(int cameraType) {
+    CameraController(int cameraType) {
         this.cameraType = cameraType;
     }
 

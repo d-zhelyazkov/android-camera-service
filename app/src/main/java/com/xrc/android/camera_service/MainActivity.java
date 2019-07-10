@@ -3,7 +3,6 @@ package com.xrc.android.camera_service;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.CameraCharacteristics;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -11,8 +10,7 @@ public class MainActivity extends Activity {
 
     private static final int CAMERA_PERMISSION_REQUEST = 1337;
 
-    private final CameraController cameraController =
-            CameraController.getInstance(CameraCharacteristics.LENS_FACING_BACK);
+    private final CameraController cameraController = Factory.getCameraController();
 
     private final Server server = new Server();
 
@@ -30,7 +28,7 @@ public class MainActivity extends Activity {
         super.onResume();
 
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[] { Manifest.permission.CAMERA }, CAMERA_PERMISSION_REQUEST);
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
             return;
         }
 

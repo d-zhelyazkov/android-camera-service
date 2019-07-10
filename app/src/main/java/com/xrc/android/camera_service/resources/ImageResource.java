@@ -1,7 +1,7 @@
 package com.xrc.android.camera_service.resources;
 
-import android.hardware.camera2.CameraCharacteristics;
 import com.xrc.android.camera_service.CameraController;
+import com.xrc.android.camera_service.Factory;
 import com.xrc.restlet.MediaType;
 import org.restlet.representation.ByteArrayRepresentation;
 import org.restlet.resource.Get;
@@ -14,8 +14,7 @@ public class ImageResource extends ServerResource {
     @Get(MediaType.IMAGE_JPEG)
     ByteArrayRepresentation getImage() {
 
-        CameraController cameraController =
-                CameraController.getInstance(CameraCharacteristics.LENS_FACING_BACK);
+        CameraController cameraController = Factory.getCameraController();
         byte[] image = cameraController.captureJPEGImage();
 
         return new ByteArrayRepresentation(image, org.restlet.data.MediaType.IMAGE_JPEG);
