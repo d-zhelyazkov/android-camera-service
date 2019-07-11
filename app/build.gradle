@@ -23,6 +23,8 @@ dependencies {
     implementation 'org.restlet.android:org.restlet.ext.jackson:2.3.1'
     implementation 'org.restlet.android:org.restlet.ext.nio:2.3.12'
     implementation 'com.xrc:java-utils:1.0-SNAPSHOT'
+    implementation project(path: ':android')
+    implementation project(path: ':restlet')
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
