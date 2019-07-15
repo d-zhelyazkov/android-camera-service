@@ -14,7 +14,6 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Size;
 import android.view.Surface;
 import com.xrc.android.example.AutoFitTextureView;
@@ -40,9 +39,7 @@ public class CameraController {
 
     private Size previewSize;
 
-    private HandlerThread backgroundThread = new HandlerThread("dummy_thread");
-
-    private Handler backgroundHandler;
+    private final Handler backgroundHandler = Handlers.getNewThreadHandler("camera_background_thread");
 
     private CameraDevice cameraDevice;
 
@@ -71,8 +68,6 @@ public class CameraController {
 
     void startPreview() throws CameraAccessException, InterruptedException {
 
-        openBackgroundThread();
-
         if (!cameraView.isAvailable()) {
             CountDownLatch viewAvailable = new CountDownLatch(1);
             cameraView.setSurfaceTextureListener(new AbstractSurfaceTextureListener() {
@@ -90,7 +85,6 @@ public class CameraController {
     void stopPreview() {
 
         closeCamera();
-        stopBackgroundThread();
     }
 
     public byte[] captureJPEGImage() {
@@ -207,12 +201,6 @@ public class CameraController {
                 previewRequest.build(), null, backgroundHandler);
     }
 
-    private void openBackgroundThread() {
-        backgroundThread = new HandlerThread("camera_background_thread");
-        backgroundThread.start();
-        backgroundHandler = new Handler(backgroundThread.getLooper());
-    }
-
     private Size resolveOptimalPreviewSize(Size[] previewSizes) {
 
         Optional<Size> optionalSize = Arrays.stream(previewSizes)
@@ -254,15 +242,4 @@ public class CameraController {
         CloseableUtils.closeQuietly(captureImageReader);
     }
 
-    /**
-     * Stops the background thread.
-     */
-    private void stopBackgroundThread() {
-        try {
-            backgroundThread.quitSafely();
-            backgroundThread.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
