@@ -2,6 +2,8 @@ package com.xrc.restlet;
 
 import org.restlet.resource.Resource;
 
+import java.util.function.Function;
+
 public class RestletResourceUtil {
 
     private final Resource restletResource;
@@ -17,5 +19,10 @@ public class RestletResourceUtil {
     public String getRequestAttributeStr(String attribute) {
         Object attributeValue = getRequestAttribute(attribute);
         return (attributeValue != null) ? attributeValue.toString() : "";
+    }
+
+    public <T> T getRequestAttribute(String attribute, Function<Object, T> converter) {
+        Object requestAttribute = getRequestAttribute(attribute);
+        return converter.apply(requestAttribute);
     }
 }
