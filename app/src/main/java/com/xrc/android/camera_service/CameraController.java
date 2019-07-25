@@ -136,8 +136,12 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
     @Override
     public <T> void setCaptureRequestValue(CaptureRequest.Key<T> requestKey, T value) {
         try {
-            previewRequest.set(requestKey, value);
-            captureRequest.set(requestKey, value);
+            if (requestKey == CaptureRequest.CONTROL_AF_MODE) {
+                setFocusMode((Integer) value);
+            } else {
+                previewRequest.set(requestKey, value);
+                captureRequest.set(requestKey, value);
+            }
 
             stopRepeatingPreviewRequest();
             setRepeatingPreviewRequest();
@@ -310,6 +314,20 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
             }
         }
         throw new RuntimeException("Camera not found.");
+    }
+
+    private void setFocusMode(int focusMode) {
+        switch (focusMode) {
+            case CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE:
+            case CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO:
+                previewRequest.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
+                captureRequest.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                break;
+            default:
+                previewRequest.set(CaptureRequest.CONTROL_AF_MODE, focusMode);
+                captureRequest.set(CaptureRequest.CONTROL_AF_MODE, focusMode);
+
+        }
     }
 
     /**

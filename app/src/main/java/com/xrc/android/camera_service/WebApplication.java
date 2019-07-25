@@ -1,5 +1,6 @@
 package com.xrc.android.camera_service;
 
+import com.xrc.android.camera_service.resources.FocusModeResource;
 import com.xrc.android.camera_service.resources.ImageResource;
 import com.xrc.android.camera_service.resources.SettingsResource;
 import com.xrc.android.camera_service.resources.SettingResource;
@@ -23,6 +24,8 @@ class WebApplication extends Application {
         Router apiRouter = new Router(getContext());
         apiRouter.attach(ImageResource.PATH, ImageResource.class);
         apiRouter.attach(SettingsResource.PATH, SettingsResource.class);
+
+        apiRouter.attach(FocusModeResource.PATH, FocusModeResource.class);
         apiRouter.attach(SettingResource.PATH, SettingResource.class);
 
         return apiRouter;
