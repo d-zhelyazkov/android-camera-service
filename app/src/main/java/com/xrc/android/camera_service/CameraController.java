@@ -22,6 +22,8 @@ import com.xrc.android.example.SizeAreaComparator;
 import com.xrc.android.os.Handlers;
 import com.xrc.android.view.AbstractSurfaceTextureListener;
 import com.xrc.lang.CloseableUtils;
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -52,6 +54,8 @@ public class CameraController {
     private ImageReader captureImageReader;
 
     private CaptureRequest.Builder captureRequest;
+
+    private PublishSubject<byte[]> captureImageObservable;
 
     private int displayRotation;
 
@@ -87,31 +91,16 @@ public class CameraController {
         closeCamera();
     }
 
-    public byte[] captureJPEGImage() {
-        Image image = null;
+    public void captureImage() {
         try {
-            CountDownLatch imageCapturedLatch = new CountDownLatch(1);
-
-            captureImageReader.setOnImageAvailableListener(
-                    reader -> imageCapturedLatch.countDown(),
-                    backgroundHandler);
-
             cameraSession.capture(captureRequest.build(), null, backgroundHandler);
-
-            imageCapturedLatch.await();
-
-            image = captureImageReader.acquireLatestImage();
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-
-            return bytes;
-
-        } catch (Exception e) {
+        } catch (CameraAccessException e) {
             throw new RuntimeException(e);
-        } finally {
-            CloseableUtils.closeQuietly(image);
         }
+    }
+
+    public Observable<byte[]> getCaptureImageObservable() {
+        return captureImageObservable;
     }
 
     private void setUpCamera() throws CameraAccessException, SecurityException, InterruptedException {
@@ -168,6 +157,21 @@ public class CameraController {
 
         captureImageReader = ImageReader.newInstance(previewSize.getWidth(), previewSize.getHeight(),
                 ImageFormat.JPEG, /*maxImages*/1);
+
+        Observable<byte[]> coldImageObservable = Observable.create(emitter ->
+                captureImageReader.setOnImageAvailableListener(reader -> {
+                    try (Image image = reader.acquireLatestImage()) {
+                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                        byte[] bytes = new byte[buffer.remaining()];
+                        buffer.get(bytes);
+
+                        emitter.onNext(bytes);
+                    }
+                },
+                backgroundHandler));
+        captureImageObservable = PublishSubject.create();
+        coldImageObservable.subscribe(captureImageObservable);
+
         Surface captureSurface = captureImageReader.getSurface();
         captureRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         captureRequest.addTarget(captureSurface);
