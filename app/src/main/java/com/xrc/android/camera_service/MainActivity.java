@@ -20,17 +20,14 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.main_layout);
 
-        init();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
+            finish();
             return;
         }
+
+        cameraController.init(this);
+        server.init();
 
         Factory.getSecondaryThreadHandler().post(() -> {
             try {
@@ -41,11 +38,20 @@ public class MainActivity extends Activity {
                 throw new RuntimeException(e);
             }
         });
+
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onResume() {
+        super.onResume();
+
+        TextView serverUrlsView = findViewById(R.id.server_urls);
+        ServerUrisDisplay.display(serverUrlsView);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
         Factory.getSecondaryThreadHandler().post(() -> {
             try {
@@ -56,16 +62,6 @@ public class MainActivity extends Activity {
                 throw new RuntimeException(e);
             }
         });
-    }
-
-    private void init() {
-
-        cameraController.init(this);
-        server.init();
-
-        TextView serverUrlsView = findViewById(R.id.server_urls);
-        ServerUrisDisplay.display(serverUrlsView);
-
     }
 
 }
