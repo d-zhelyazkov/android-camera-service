@@ -1,10 +1,13 @@
 package com.xrc.android.camera_service;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
+import io.reactivex.Observable;
 
 public class MainActivity extends Activity {
 
@@ -34,6 +37,8 @@ public class MainActivity extends Activity {
                 cameraController.startPreview();
                 server.start();
 
+                setupCaptureToast();
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -62,6 +67,16 @@ public class MainActivity extends Activity {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @SuppressLint("CheckResult")
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void setupCaptureToast() {
+        String captureMsg = getString(R.string.capture_msg);
+        Toast toast = Toast.makeText(this, captureMsg, Toast.LENGTH_SHORT);
+
+        Observable<byte[]> captureImageObservable = cameraController.getCaptureImageObservable();
+        captureImageObservable.subscribe(bytes -> toast.show());
     }
 
 }
