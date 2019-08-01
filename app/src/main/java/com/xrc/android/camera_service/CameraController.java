@@ -10,6 +10,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
@@ -31,12 +32,15 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class CameraController {
+public class CameraController implements com.xrc.android.hardware.camera2.CameraController {
 
     private static final Size OPTIMAL_PREVIEW_SIZE = new Size(1280, 720);
 
     private final int cameraType;
+
+    private final AtomicReference<CaptureResult> captureResultRef = new AtomicReference<>();
 
     private CameraManager cameraManager;
 
@@ -123,6 +127,37 @@ public class CameraController {
         return captureImageObservable;
     }
 
+    @Override
+    public <T> T getCaptureResultValue(CaptureResult.Key<T> resultKey) {
+        CaptureResult captureResult = captureResultRef.get();
+        return captureResult.get(resultKey);
+    }
+
+    @Override
+    public <T> void setCaptureRequestValue(CaptureRequest.Key<T> requestKey, T value) {
+        try {
+            previewRequest.set(requestKey, value);
+            captureRequest.set(requestKey, value);
+
+            stopRepeatingPreviewRequest();
+            setRepeatingPreviewRequest();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public <T> T getCameraCharacteristic(CameraCharacteristics.Key<T> characteristicKey) {
+        try {
+            CameraCharacteristics cameraCharacteristics =
+                    cameraManager.getCameraCharacteristics(cameraDevice.getId());
+            return cameraCharacteristics.get(characteristicKey);
+
+        } catch (CameraAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
     private void setUpCamera() throws CameraAccessException, SecurityException, InterruptedException {
         String cameraId = findCameraId();
 
@@ -219,10 +254,25 @@ public class CameraController {
         setRepeatingPreviewRequest();
     }
 
-    private void setRepeatingPreviewRequest() throws CameraAccessException {
+    private void setRepeatingPreviewRequest() throws CameraAccessException, InterruptedException {
 
+        CountDownLatch latch = new CountDownLatch(1);
         cameraSession.setRepeatingRequest(
-                previewRequest.build(), null, backgroundHandler);
+                previewRequest.build(),
+                new CameraCaptureSession.CaptureCallback() {
+
+                    @Override
+                    public void onCaptureCompleted(
+                            CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+                        super.onCaptureCompleted(session, request, result);
+
+                        latch.countDown();
+
+                        captureResultRef.set(result);
+                    }
+                },
+                backgroundHandler);
+        latch.await();
     }
 
     private void stopRepeatingPreviewRequest() throws CameraAccessException {

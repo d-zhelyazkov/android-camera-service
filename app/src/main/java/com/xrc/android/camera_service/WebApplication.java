@@ -3,7 +3,6 @@ package com.xrc.android.camera_service;
 import com.xrc.android.camera_service.resources.ImageResource;
 import com.xrc.android.camera_service.resources.SettingsResource;
 import com.xrc.android.camera_service.resources.SettingResource;
-import com.xrc.android.camera_service.resources.SettingValueResource;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
@@ -18,14 +17,13 @@ class WebApplication extends Application {
         setName(DISPLAY_NAME);
     }
 
-	@Override
+    @Override
     public Restlet createInboundRoot() {
 
         Router apiRouter = new Router(getContext());
         apiRouter.attach(ImageResource.PATH, ImageResource.class);
         apiRouter.attach(SettingsResource.PATH, SettingsResource.class);
         apiRouter.attach(SettingResource.PATH, SettingResource.class);
-        apiRouter.attach(SettingValueResource.PATH, SettingValueResource.class);
 
         return apiRouter;
     }
