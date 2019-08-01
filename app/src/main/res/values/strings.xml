@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Camera Service</string>
+    <string name="capture_msg">Image captured.</string>
 </resources>
