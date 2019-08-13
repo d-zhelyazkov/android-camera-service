@@ -10,6 +10,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
@@ -93,8 +94,27 @@ public class CameraController {
 
     public void captureImage() {
         try {
-            cameraSession.capture(captureRequest.build(), null, backgroundHandler);
-        } catch (CameraAccessException e) {
+            stopRepeatingPreviewRequest();
+
+            CountDownLatch captureCompleted = new CountDownLatch(1);
+            cameraSession.capture(
+                    captureRequest.build(),
+                    new CameraCaptureSession.CaptureCallback() {
+                        @Override
+                        public void onCaptureCompleted(
+                                CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+
+                            super.onCaptureCompleted(session, request, result);
+
+                            captureCompleted.countDown();
+                        }
+                    },
+                    backgroundHandler);
+            captureCompleted.await();
+
+            setRepeatingPreviewRequest();
+
+        } catch (CameraAccessException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -156,19 +176,19 @@ public class CameraController {
         previewRequest.addTarget(previewSurface);
 
         captureImageReader = ImageReader.newInstance(previewSize.getWidth(), previewSize.getHeight(),
-                ImageFormat.JPEG, /*maxImages*/1);
+                ImageFormat.JPEG, /*maxImages*/2);
 
         Observable<byte[]> coldImageObservable = Observable.create(emitter ->
                 captureImageReader.setOnImageAvailableListener(reader -> {
-                    try (Image image = reader.acquireLatestImage()) {
-                        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                        byte[] bytes = new byte[buffer.remaining()];
-                        buffer.get(bytes);
+                            try (Image image = reader.acquireNextImage()) {
+                                ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                                byte[] bytes = new byte[buffer.remaining()];
+                                buffer.get(bytes);
 
-                        emitter.onNext(bytes);
-                    }
-                },
-                backgroundHandler));
+                                emitter.onNext(bytes);
+                            }
+                        },
+                        backgroundHandler));
         captureImageObservable = PublishSubject.create();
         coldImageObservable.subscribe(captureImageObservable);
 
@@ -203,6 +223,11 @@ public class CameraController {
 
         cameraSession.setRepeatingRequest(
                 previewRequest.build(), null, backgroundHandler);
+    }
+
+    private void stopRepeatingPreviewRequest() throws CameraAccessException {
+        cameraSession.stopRepeating();
+        cameraSession.abortCaptures();
     }
 
     private Size resolveOptimalPreviewSize(Size[] previewSizes) {
