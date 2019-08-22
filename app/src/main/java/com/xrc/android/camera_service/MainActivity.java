@@ -17,6 +17,8 @@ public class MainActivity extends Activity {
 
     private final Server server = new Server();
 
+    private CameraSettingsDisplay settingsDisplay;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +34,16 @@ public class MainActivity extends Activity {
         cameraController.init(this);
         server.init();
 
+        TextView cameraSettingsView = findViewById(R.id.camera_settings);
+        settingsDisplay = new CameraSettingsDisplay(cameraSettingsView);
+
         Factory.getSecondaryThreadHandler().post(() -> {
             try {
                 cameraController.startPreview();
                 server.start();
 
                 setupCaptureToast();
+                settingsDisplay.start();
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -60,6 +66,7 @@ public class MainActivity extends Activity {
 
         Factory.getSecondaryThreadHandler().post(() -> {
             try {
+                settingsDisplay.stop();
                 server.stop();
                 cameraController.stopPreview();
 

@@ -1,4 +1,4 @@
-package com.xrc.android.camera_service.resources.beans;
+package com.xrc.android.camera_service.resources.representation;
 
 public class SettingValue {
     private String value;
