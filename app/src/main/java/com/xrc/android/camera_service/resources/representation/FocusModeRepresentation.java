@@ -6,7 +6,6 @@ import com.xrc.util.Arrays;
 import java.util.Set;
 
 public enum FocusModeRepresentation {
-    MANUAL(FocusMode.MANUAL),
     AUTO(FocusMode.AUTO),
     MACRO(FocusMode.MACRO),
     CONTINUOUS(FocusMode.CONTINUOUS_PICTURE, FocusMode.CONTINUOUS_VIDEO),
