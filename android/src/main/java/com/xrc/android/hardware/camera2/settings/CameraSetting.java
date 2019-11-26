@@ -2,6 +2,7 @@ package com.xrc.android.hardware.camera2.settings;
 
 import com.xrc.android.hardware.camera2.settings.impl.AutoExposureCompensationController;
 import com.xrc.android.hardware.camera2.settings.impl.AutoExposureLockController;
+import com.xrc.android.hardware.camera2.settings.impl.AutoExposureModeController;
 import com.xrc.android.hardware.camera2.settings.impl.AutoFocusModeController;
 import com.xrc.android.hardware.camera2.settings.impl.SensitivityController;
 
@@ -16,6 +17,9 @@ public class CameraSetting<T> {
 
     public static final CameraSetting<AutoFocusMode> AF_MODE =
             new CameraSetting<>("AF_MODE", AutoFocusModeController.class);
+
+    public static final CameraSetting<AutoExposureMode> AE_MODE =
+            new CameraSetting<>("AE_MODE", AutoExposureModeController.class);
 
     public static final CameraSetting<Boolean> AE_LOCK =
             new CameraSetting<>("AE_LOCK", AutoExposureLockController.class);
