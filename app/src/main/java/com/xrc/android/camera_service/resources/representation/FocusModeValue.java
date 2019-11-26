@@ -1,13 +1,13 @@
 package com.xrc.android.camera_service.resources.representation;
 
 public class FocusModeValue {
-    private FocusModeRepresentation value;
+    private FocusMode value;
 
-    public FocusModeRepresentation getValue() {
+    public FocusMode getValue() {
         return value;
     }
 
-    public void setValue(FocusModeRepresentation value) {
+    public void setValue(FocusMode value) {
         this.value = value;
     }
 }

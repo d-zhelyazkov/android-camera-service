@@ -2,7 +2,7 @@ package com.xrc.android.hardware.camera2.settings;
 
 import com.xrc.android.hardware.camera2.settings.impl.AutoExposureCompensationController;
 import com.xrc.android.hardware.camera2.settings.impl.AutoExposureLockController;
-import com.xrc.android.hardware.camera2.settings.impl.FocusModeController;
+import com.xrc.android.hardware.camera2.settings.impl.AutoFocusModeController;
 import com.xrc.android.hardware.camera2.settings.impl.SensitivityController;
 
 import java.util.ArrayList;
@@ -14,8 +14,8 @@ public class CameraSetting<T> {
     public static final CameraSetting<Integer> ISO =
             new CameraSetting<>("ISO", SensitivityController.class);
 
-    public static final CameraSetting<FocusMode> FOCUS_MODE =
-            new CameraSetting<>("FOCUS_MODE", FocusModeController.class);
+    public static final CameraSetting<AutoFocusMode> AF_MODE =
+            new CameraSetting<>("AF_MODE", AutoFocusModeController.class);
 
     public static final CameraSetting<Boolean> AE_LOCK =
             new CameraSetting<>("AE_LOCK", AutoExposureLockController.class);
