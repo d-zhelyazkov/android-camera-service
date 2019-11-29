@@ -12,7 +12,7 @@ public class CameraResourceUtil {
 
     public static CameraSettingController<String> getStringSettingController(Setting setting) throws ResourceException {
 
-        CameraSetting<?> cameraSetting = setting.getCameraSetting();
+        CameraSetting cameraSetting = setting.getCameraSetting();
         CameraSettingsManager cameraSettingsManager = Factory.getCameraSettingsManager();
         CameraSettingController<String> settingController =
                 cameraSettingsManager.getStringSettingController(cameraSetting);
@@ -22,7 +22,7 @@ public class CameraResourceUtil {
         return settingController;
     }
 
-    public static <T> CameraSettingController<T> getSettingController(CameraSetting<T> cameraSetting) {
+    public static <T> CameraSettingController<T> getSettingController(CameraSetting cameraSetting) {
         CameraSettingsManager cameraSettingsManager = Factory.getCameraSettingsManager();
         CameraSettingController<T> settingController =
                 cameraSettingsManager.getSettingController(cameraSetting);

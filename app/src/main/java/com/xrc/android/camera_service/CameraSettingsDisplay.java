@@ -36,7 +36,7 @@ public class CameraSettingsDisplay {
     private void updateView() {
         StringBuilder settingsInfo = new StringBuilder();
         CameraSettingsManager cameraSettingsManager = Factory.getCameraSettingsManager();
-        Stream<CameraSetting<?>> supportedSettings = cameraSettingsManager.getSupportedSettings();
+        Stream<CameraSetting> supportedSettings = cameraSettingsManager.getSupportedSettings();
         supportedSettings.forEach(cameraSetting -> {
             CameraSettingController<?> settingController = cameraSettingsManager.getSettingController(cameraSetting);
             String value = settingController.getDisplayValue();

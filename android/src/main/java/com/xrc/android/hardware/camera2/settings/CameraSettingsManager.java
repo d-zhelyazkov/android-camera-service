@@ -1,11 +1,15 @@
 package com.xrc.android.hardware.camera2.settings;
 
 import com.xrc.android.hardware.camera2.CameraController;
+import com.xrc.android.hardware.camera2.settings.impl.AutoExposureCompensationController;
+import com.xrc.android.hardware.camera2.settings.impl.AutoExposureLockController;
+import com.xrc.android.hardware.camera2.settings.impl.AutoExposureModeController;
+import com.xrc.android.hardware.camera2.settings.impl.AutoFocusModeController;
 import com.xrc.android.hardware.camera2.settings.impl.SafeCameraSettingController;
+import com.xrc.android.hardware.camera2.settings.impl.SensitivityController;
 import com.xrc.android.hardware.camera2.settings.impl.StringSettingAdapter;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class CameraSettingsManager {
@@ -16,38 +20,52 @@ public class CameraSettingsManager {
         this.cameraController = cameraController;
     }
 
-    public <T> CameraSettingController<T> getSettingController(CameraSetting<T> setting) {
+    public <T> CameraSettingController<T> getSettingController(CameraSetting setting) {
         return constructSettingController(setting);
     }
 
-    public <T> CameraSettingController<String> getStringSettingController(CameraSetting<T> setting) {
+    public CameraSettingController<String> getStringSettingController(CameraSetting setting) {
         return new StringSettingAdapter<>(getSettingController(setting));
     }
 
-    public Stream<CameraSetting<?>> getSupportedSettings() {
-        return CameraSetting.values().stream()
+    public Stream<CameraSetting> getSupportedSettings() {
+        return Arrays.stream(CameraSetting.values())
                 .filter(setting -> {
                     BaseCameraSettingController settingController = getInternalSettingController(setting);
                     return settingController.isSettingSupported();
                 });
     }
 
-    private <T> CameraSettingController<T> constructSettingController(CameraSetting<T> setting) {
+    private <T> CameraSettingController<T> constructSettingController(CameraSetting setting) {
         return new SafeCameraSettingController<>(
                 getInternalSettingController(setting));
     }
 
-    private <T> CameraSettingController<T> getInternalSettingController(CameraSetting<T> setting) {
+    private <T> CameraSettingController<T> getInternalSettingController(CameraSetting setting) {
 
-        try {
-            Class<? extends CameraSettingController<T>> settingControllerClass =
-                    setting.getSettingControllerClass();
-            Constructor<? extends CameraSettingController<T>> constructor =
-                    settingControllerClass.getConstructor(CameraController.class);
-            return constructor.newInstance(cameraController);
-
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        CameraSettingController<?> controller;
+        switch (setting) {
+            case ISO:
+                controller = new SensitivityController(cameraController);
+                break;
+            case AF_MODE:
+                controller = new AutoFocusModeController(cameraController);
+                break;
+            case AE_MODE:
+                controller = new AutoExposureModeController(cameraController);
+                break;
+            case AE_LOCK:
+                controller = new AutoExposureLockController(cameraController);
+                break;
+            case AE_COMPENSATION:
+                controller = new AutoExposureCompensationController(cameraController);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + setting);
         }
+
+        //noinspection unchecked
+        return (CameraSettingController<T>) controller;
+
     }
 }

@@ -22,10 +22,10 @@ import java.util.function.IntFunction;
 public abstract class EnumSettingResource<T, V, K extends ValueBase<T>>
         extends ServerResource {
 
-    protected final CameraSetting<V> setting;
+    protected final CameraSetting setting;
     protected final ValueMapper<T, V> valueMapper;
 
-    protected EnumSettingResource(CameraSetting<V> setting, ValueMapper<T, V> valueMapper) {
+    protected EnumSettingResource(CameraSetting setting, ValueMapper<T, V> valueMapper) {
         this.setting = setting;
         this.valueMapper = valueMapper;
     }
