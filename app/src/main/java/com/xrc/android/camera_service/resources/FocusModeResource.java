@@ -12,7 +12,7 @@ public class FocusModeResource extends EnumSettingResource<FocusMode, AutoFocusM
 
     public static final String PATH = "/settings/FOCUS_MODE";
 
-    protected FocusModeResource() {
+    public FocusModeResource() {
         super(CameraSetting.AF_MODE, FocusModeMapper.getMapper());
     }
 

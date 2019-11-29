@@ -17,7 +17,7 @@ public class ImageResource extends ServerResource {
     public static final String PATH = "/image";
 
     @Get(MediaType.IMAGE_JPEG)
-    ByteArrayRepresentation getImage() {
+    public ByteArrayRepresentation getImage() {
 
         AtomicReference<ByteArrayRepresentation> response = new AtomicReference<>();
         CameraController cameraController = Factory.getCameraController();

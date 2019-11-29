@@ -23,7 +23,7 @@ public class SettingResource extends ServerResource {
     public static final String PATH = String.format("/settings/{%s}", SETTING_PATH_PARAM);
 
     @Get(MediaType.APPLICATION_JSON)
-    SettingInfo<String> getSettingInfo() throws ResourceException {
+    public SettingInfo<String> getSettingInfo() throws ResourceException {
         CameraSettingController<String> settingController = getRequestedSettingController();
         return new SettingInfo<>(
                 Setting.fromCameraSetting(settingController.getControlledSetting()),
@@ -35,7 +35,7 @@ public class SettingResource extends ServerResource {
     }
 
     @Put(MediaType.APPLICATION_JSON)
-    void updateSettingValue(SettingValue settingValue) throws ResourceException {
+    public void updateSettingValue(SettingValue settingValue) throws ResourceException {
 
         try {
             CameraSettingController<String> settingController = getRequestedSettingController();

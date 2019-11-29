@@ -14,7 +14,7 @@ public class AutoExposureLockController implements CameraSettingController<Boole
 
     private final CameraController cameraController;
 
-    AutoExposureLockController(CameraController cameraController) {
+    public AutoExposureLockController(CameraController cameraController) {
         this.cameraController = cameraController;
     }
 

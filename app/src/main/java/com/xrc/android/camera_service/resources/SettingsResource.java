@@ -13,7 +13,7 @@ public class SettingsResource extends ServerResource {
     public static final String PATH = "/settings";
 
     @Get(MediaType.APPLICATION_JSON)
-    Setting[] getSettings() throws ResourceException {
+    public Setting[] getSettings() throws ResourceException {
         CameraSettingsManager cameraSettingsManager = Factory.getCameraSettingsManager();
         return cameraSettingsManager.getSupportedSettings()
                 .map(Setting::fromCameraSetting)

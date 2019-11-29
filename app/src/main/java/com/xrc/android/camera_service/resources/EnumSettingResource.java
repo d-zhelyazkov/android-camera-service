@@ -31,7 +31,7 @@ public abstract class EnumSettingResource<T, V, K extends ValueBase<T>>
     }
 
     @Get(MediaType.APPLICATION_JSON)
-    SettingInfo<T> getSettingInfo() throws ResourceException {
+    public SettingInfo<T> getSettingInfo() throws ResourceException {
         CameraSettingController<V> settingController =
                 CameraResourceUtil.getSettingController(setting);
         return new SettingInfo<>(
@@ -46,7 +46,7 @@ public abstract class EnumSettingResource<T, V, K extends ValueBase<T>>
     }
 
     @Put(MediaType.APPLICATION_JSON)
-    void updateSettingValue(K value) throws ResourceException {
+    public void updateSettingValue(K value) throws ResourceException {
         try {
             CameraSettingController<V> settingController =
                     CameraResourceUtil.getSettingController(setting);
