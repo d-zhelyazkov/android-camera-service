@@ -6,6 +6,7 @@ import android.hardware.camera2.CaptureResult;
 import android.util.Range;
 import android.util.Rational;
 import com.xrc.android.hardware.camera2.CameraController;
+import com.xrc.android.hardware.camera2.settings.AutoExposureMode;
 import com.xrc.android.hardware.camera2.settings.CameraSetting;
 import com.xrc.android.hardware.camera2.settings.CameraSettingController;
 
@@ -38,9 +39,9 @@ public class AutoExposureCompensationController implements CameraSettingControll
 
     @Override
     public boolean isEditable() {
-        //TODO improve this when AEModeController is introduced.
-        Integer aeMode = cameraController.getCaptureResultValue(CaptureResult.CONTROL_AE_MODE);
-        return (aeMode != CaptureResult.CONTROL_AE_MODE_OFF);
+        AutoExposureModeController aeModeController = new AutoExposureModeController(cameraController);
+        AutoExposureMode aeMode = aeModeController.getValue();
+        return (aeMode != AutoExposureMode.OFF);
     }
 
     @Override

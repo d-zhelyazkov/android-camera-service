@@ -4,6 +4,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import com.xrc.android.hardware.camera2.CameraController;
+import com.xrc.android.hardware.camera2.settings.AutoExposureMode;
 import com.xrc.android.hardware.camera2.settings.CameraSetting;
 import com.xrc.android.hardware.camera2.settings.CameraSettingController;
 import com.xrc.lang.Booleans;
@@ -30,9 +31,9 @@ public class AutoExposureLockController implements CameraSettingController<Boole
 
     @Override
     public boolean isEditable() {
-        //TODO improve this when AEModeController is introduced.
-        Integer aeMode = cameraController.getCaptureResultValue(CaptureResult.CONTROL_AE_MODE);
-        return (aeMode != CaptureResult.CONTROL_AE_MODE_OFF);
+        AutoExposureModeController aeModeController = new AutoExposureModeController(cameraController);
+        AutoExposureMode aeMode = aeModeController.getValue();
+        return (aeMode != AutoExposureMode.OFF);
     }
 
     @Override
