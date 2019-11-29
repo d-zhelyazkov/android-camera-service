@@ -57,9 +57,12 @@ public class SettingResource extends ServerResource {
 
     private Setting getRequestedSetting() {
         RestletResourceUtil resourceUtil = new RestletResourceUtil(this);
-        return resourceUtil.getRequestAttribute(
-                SETTING_PATH_PARAM,
-                o -> Setting.valueOf(o.toString()));
+        String setting = resourceUtil.getRequestAttributeStr(SETTING_PATH_PARAM);
+        try {
+            return Setting.valueOf(setting);
+        } catch (IllegalArgumentException e) {
+            throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Setting not supported - " + setting);
+        }
     }
 }
 
