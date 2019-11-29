@@ -8,7 +8,6 @@ import com.xrc.android.hardware.camera2.CameraController;
 import com.xrc.android.hardware.camera2.settings.AutoExposureMode;
 import com.xrc.android.hardware.camera2.settings.CameraSetting;
 import com.xrc.android.hardware.camera2.settings.CameraSettingController;
-import com.xrc.lang.Integers;
 
 import java.util.stream.Stream;
 
@@ -28,7 +27,7 @@ public class SensitivityController implements CameraSettingController<Integer> {
 
     @Override
     public boolean isValueSupported(Integer value) {
-        Range<Integer> sensitivityRange = getValueRange();
+        Range<Integer> sensitivityRange = getInternalValueRange();
         return sensitivityRange.contains(value);
     }
 
@@ -41,7 +40,7 @@ public class SensitivityController implements CameraSettingController<Integer> {
 
     @Override
     public Stream<Integer> getValues() {
-        Range<Integer> sensitivityRange = getValueRange();
+        Range<Integer> sensitivityRange = getInternalValueRange();
         return Stream.of(
                 sensitivityRange.getLower(),
                 getMaxAnalogSensitivity(),
@@ -72,19 +71,6 @@ public class SensitivityController implements CameraSettingController<Integer> {
     public String getDisplayValue() {
         int value = getValue();
         return Integer.toString(value);
-    }
-
-    private Range<Integer> getValueRange() {
-        Range<Integer> internalRange = getInternalValueRange();
-        int minValue = internalRange.getLower();
-
-        int maxValue = internalRange.getUpper();
-        int maxAnalogSensitivity = getMaxAnalogSensitivity();
-        int k = maxValue / maxAnalogSensitivity;
-        k = Integers.nextPowerOfTwo(k);
-        maxValue = maxAnalogSensitivity * k;
-
-        return new Range<>(minValue, maxValue);
     }
 
     private int getMaxAnalogSensitivity() {
