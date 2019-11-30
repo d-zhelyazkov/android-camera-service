@@ -66,6 +66,20 @@ public class SensitivityController implements CameraSettingController<Integer> {
     public CameraSetting getControlledSetting() {
         return CameraSetting.ISO;
     }
+    
+    protected int getValidValue(int value) {
+        Range<Integer> valueRange = getInternalValueRange();
+
+        Integer lowestValue = valueRange.getLower();
+        if (value < lowestValue)
+            return lowestValue;
+
+        Integer highestValue = valueRange.getUpper();
+        if (value > highestValue)
+            return highestValue;
+
+        return value;
+    }
 
     @Override
     public String getDisplayValue() {
