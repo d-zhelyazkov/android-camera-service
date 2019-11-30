@@ -16,16 +16,16 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
+
 import com.xrc.android.example.AutoFitTextureView;
 import com.xrc.android.example.CameraTextureTransformer;
 import com.xrc.android.example.SizeAreaComparator;
 import com.xrc.android.os.Handlers;
 import com.xrc.android.view.AbstractSurfaceTextureListener;
 import com.xrc.lang.CloseableUtils;
-import io.reactivex.Observable;
-import io.reactivex.subjects.PublishSubject;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -33,6 +33,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 public class CameraController implements com.xrc.android.hardware.camera2.CameraController {
 
@@ -46,7 +49,8 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
 
     private Size previewSize;
 
-    private final Handler backgroundHandler = Handlers.getNewThreadHandler("camera_background_thread");
+    private final Handler backgroundHandler = Handlers.getNewThreadHandler(
+            "camera_background_thread");
 
     private CameraDevice cameraDevice;
 
@@ -81,7 +85,8 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
             CountDownLatch viewAvailable = new CountDownLatch(1);
             cameraView.setSurfaceTextureListener(new AbstractSurfaceTextureListener() {
                 @Override
-                public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
+                public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width,
+                                                      int height) {
                     viewAvailable.countDown();
                 }
             });
@@ -106,7 +111,8 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
                     new CameraCaptureSession.CaptureCallback() {
                         @Override
                         public void onCaptureCompleted(
-                                CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+                                CameraCaptureSession session, CaptureRequest request,
+                                TotalCaptureResult result) {
 
                             super.onCaptureCompleted(session, request, result);
 
@@ -135,12 +141,15 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
 
     @Override
     public <T> void setCaptureRequestValue(CaptureRequest.Key<T> requestKey, T value) {
+        setCaptureRequestValues(new Pair[]{new Pair<>(requestKey, value)});
+    }
+
+    @Override
+    public void setCaptureRequestValues(Pair<CaptureRequest.Key<Object>, Object>[] values) {
         try {
-            if (requestKey == CaptureRequest.CONTROL_AF_MODE) {
-                setFocusMode((Integer) value);
-            } else {
-                previewRequest.set(requestKey, value);
-                captureRequest.set(requestKey, value);
+
+            for (Pair<CaptureRequest.Key<Object>, Object> value : values) {
+                setRequestValueInternal(value);
             }
 
             stopRepeatingPreviewRequest();
@@ -162,7 +171,9 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
             throw new RuntimeException(e);
         }
     }
-    private void setUpCamera() throws CameraAccessException, SecurityException, InterruptedException {
+
+    private void setUpCamera() throws CameraAccessException, SecurityException,
+            InterruptedException {
         String cameraId = findCameraId();
 
         CameraCharacteristics cameraCharacteristics =
@@ -214,7 +225,8 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
         previewRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         previewRequest.addTarget(previewSurface);
 
-        captureImageReader = ImageReader.newInstance(previewSize.getWidth(), previewSize.getHeight(),
+        captureImageReader = ImageReader.newInstance(previewSize.getWidth(),
+                previewSize.getHeight(),
                 ImageFormat.JPEG, /*maxImages*/2);
 
         Observable<byte[]> coldImageObservable = Observable.create(emitter ->
@@ -267,7 +279,8 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
 
                     @Override
                     public void onCaptureCompleted(
-                            CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+                            CameraCaptureSession session, CaptureRequest request,
+                            TotalCaptureResult result) {
                         super.onCaptureCompleted(session, request, result);
 
                         latch.countDown();
@@ -316,12 +329,25 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
         throw new RuntimeException("Camera not found.");
     }
 
+    private <T> void setRequestValueInternal(Pair<CaptureRequest.Key<T>, T> requestValue) {
+        CaptureRequest.Key<T> requestKey = requestValue.first;
+        T value = requestValue.second;
+        if (requestKey == CaptureRequest.CONTROL_AF_MODE) {
+            setFocusMode((Integer) value);
+        } else {
+            previewRequest.set(requestKey, value);
+            captureRequest.set(requestKey, value);
+        }
+    }
+
     private void setFocusMode(int focusMode) {
         switch (focusMode) {
             case CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE:
             case CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO:
-                previewRequest.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
-                captureRequest.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                previewRequest.set(CaptureRequest.CONTROL_AF_MODE,
+                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
+                captureRequest.set(CaptureRequest.CONTROL_AF_MODE,
+                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
                 break;
             default:
                 previewRequest.set(CaptureRequest.CONTROL_AF_MODE, focusMode);
