@@ -7,28 +7,19 @@ import android.util.Range;
 import com.xrc.android.hardware.camera2.CameraController;
 import com.xrc.android.hardware.camera2.settings.AutoExposureMode;
 import com.xrc.android.hardware.camera2.settings.CameraSetting;
-import com.xrc.android.hardware.camera2.settings.CameraSettingController;
 
 import java.util.stream.Stream;
 
-public class SensitivityController implements CameraSettingController<Integer> {
-
-    private final CameraController cameraController;
+public class SensitivityController extends RangeSettingControllerBase<Integer> {
 
     public SensitivityController(CameraController cameraController) {
-        this.cameraController = cameraController;
-    }
-
-    @Override
-    public boolean isSettingSupported() {
-        Range<Integer> sensitivityRange = getInternalValueRange();
-        return (sensitivityRange != null);
-    }
-
-    @Override
-    public boolean isValueSupported(Integer value) {
-        Range<Integer> sensitivityRange = getInternalValueRange();
-        return sensitivityRange.contains(value);
+        super(
+                cameraController,
+                CaptureResult.SENSOR_SENSITIVITY,
+                CaptureRequest.SENSOR_SENSITIVITY,
+                CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE,
+                CameraSetting.ISO
+        );
     }
 
     @Override
@@ -48,38 +39,10 @@ public class SensitivityController implements CameraSettingController<Integer> {
     }
 
     @Override
-    public Integer getValue() {
-        return cameraController.getCaptureResultValue(CaptureResult.SENSOR_SENSITIVITY);
-    }
-
-    @Override
-    public void setValue(Integer value) {
-        cameraController.setCaptureRequestValue(CaptureRequest.SENSOR_SENSITIVITY, value);
-    }
-
-    @Override
     public Integer parseValue(String str) {
         return Integer.parseInt(str);
     }
 
-    @Override
-    public CameraSetting getControlledSetting() {
-        return CameraSetting.ISO;
-    }
-    
-    protected int getValidValue(int value) {
-        Range<Integer> valueRange = getInternalValueRange();
-
-        Integer lowestValue = valueRange.getLower();
-        if (value < lowestValue)
-            return lowestValue;
-
-        Integer highestValue = valueRange.getUpper();
-        if (value > highestValue)
-            return highestValue;
-
-        return value;
-    }
 
     @Override
     public String getDisplayValue() {
@@ -90,12 +53,6 @@ public class SensitivityController implements CameraSettingController<Integer> {
     private int getMaxAnalogSensitivity() {
         return cameraController.getCameraCharacteristic(
                 CameraCharacteristics.SENSOR_MAX_ANALOG_SENSITIVITY
-        );
-    }
-
-    private Range<Integer> getInternalValueRange() {
-        return cameraController.getCameraCharacteristic(
-                CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE
         );
     }
 }
