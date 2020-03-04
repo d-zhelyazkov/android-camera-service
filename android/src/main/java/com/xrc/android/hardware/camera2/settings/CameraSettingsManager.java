@@ -5,6 +5,7 @@ import com.xrc.android.hardware.camera2.settings.impl.AutoExposureCompensationCo
 import com.xrc.android.hardware.camera2.settings.impl.AutoExposureLockController;
 import com.xrc.android.hardware.camera2.settings.impl.AutoExposureModeController;
 import com.xrc.android.hardware.camera2.settings.impl.AutoFocusModeController;
+import com.xrc.android.hardware.camera2.settings.impl.ExposureTimeController;
 import com.xrc.android.hardware.camera2.settings.impl.SafeCameraSettingController;
 import com.xrc.android.hardware.camera2.settings.impl.SensitivityController;
 import com.xrc.android.hardware.camera2.settings.impl.StringSettingAdapter;
@@ -59,6 +60,9 @@ public class CameraSettingsManager {
                 break;
             case AE_COMPENSATION:
                 controller = new AutoExposureCompensationController(cameraController);
+                break;
+            case EXPOSURE_TIME:
+                controller = new ExposureTimeController(cameraController);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + setting);

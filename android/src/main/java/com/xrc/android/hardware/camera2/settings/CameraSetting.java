@@ -5,5 +5,6 @@ public enum CameraSetting {
     AF_MODE,
     AE_MODE,
     AE_LOCK,
-    AE_COMPENSATION
+    AE_COMPENSATION,
+    EXPOSURE_TIME,
 }
