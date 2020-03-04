@@ -8,7 +8,9 @@ public enum Setting {
     FOCUS_MODE(CameraSetting.AF_MODE),
     AE_MODE(CameraSetting.AE_MODE),
     AE_COMPENSATION(CameraSetting.AE_COMPENSATION),
-    AE_LOCK(CameraSetting.AE_LOCK);
+    AE_LOCK(CameraSetting.AE_LOCK),
+    SHUTTER_SPEED(CameraSetting.EXPOSURE_TIME),
+    ;
 
     public static Setting fromCameraSetting(CameraSetting cameraSetting) {
         return Arrays.find(
