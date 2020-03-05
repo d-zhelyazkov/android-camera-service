@@ -8,6 +8,8 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
+import java.util.Objects;
+
 public class SettingsResource extends ServerResource {
 
     public static final String PATH = "/settings";
@@ -17,6 +19,7 @@ public class SettingsResource extends ServerResource {
         CameraSettingsManager cameraSettingsManager = Factory.getCameraSettingsManager();
         return cameraSettingsManager.getSupportedSettings()
                 .map(Setting::fromCameraSetting)
+                .filter(Objects::nonNull)
                 .toArray(Setting[]::new);
     }
 
