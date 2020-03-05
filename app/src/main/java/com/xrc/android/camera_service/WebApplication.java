@@ -1,9 +1,10 @@
 package com.xrc.android.camera_service;
 
 import com.xrc.android.camera_service.resources.AeModeResource;
+import com.xrc.android.camera_service.resources.FocusModeResource;
 import com.xrc.android.camera_service.resources.ImageResource;
-import com.xrc.android.camera_service.resources.SettingResource;
 import com.xrc.android.camera_service.resources.SettingsResource;
+import com.xrc.android.camera_service.resources.SettingResource;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
@@ -25,6 +26,7 @@ class WebApplication extends Application {
         apiRouter.attach(ImageResource.PATH, ImageResource.class);
         apiRouter.attach(SettingsResource.PATH, SettingsResource.class);
 
+        apiRouter.attach(FocusModeResource.PATH, FocusModeResource.class);
         apiRouter.attach(AeModeResource.PATH, AeModeResource.class);
         apiRouter.attach(SettingResource.PATH, SettingResource.class);
 
