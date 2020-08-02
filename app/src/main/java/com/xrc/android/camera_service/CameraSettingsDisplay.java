@@ -2,15 +2,17 @@ package com.xrc.android.camera_service;
 
 import android.os.Handler;
 import android.widget.TextView;
+
 import com.xrc.android.hardware.camera2.settings.CameraSetting;
 import com.xrc.android.hardware.camera2.settings.CameraSettingController;
 import com.xrc.android.hardware.camera2.settings.CameraSettingsManager;
 import com.xrc.android.os.Handlers;
 
-import java.time.Duration;
 import java.util.stream.Stream;
 
 public class CameraSettingsDisplay {
+
+    private static final long UPDATE_MS = 1000;
 
     private final TextView cameraSettingsView;
 
@@ -18,7 +20,7 @@ public class CameraSettingsDisplay {
 
     private final Runnable updateTask = () -> {
         updateView();
-        handler.postDelayed(this.updateTask, Duration.ofSeconds(1).toMillis());
+        handler.postDelayed(this.updateTask, UPDATE_MS);
     };
 
     public CameraSettingsDisplay(TextView cameraSettingsView) {
