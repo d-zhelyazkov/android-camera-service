@@ -140,6 +140,7 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> void setCaptureRequestValue(CaptureRequest.Key<T> requestKey, T value) {
         setCaptureRequestValues(new Pair[]{new Pair<>(requestKey, value)});
     }
@@ -184,11 +185,12 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
 
         Size[] outputSizes = streamConfigurationMap.getOutputSizes(SurfaceTexture.class);
         previewSize = resolveOptimalPreviewSize(outputSizes);
-        Handlers.getMainThreadHandler().post(() -> cameraView.setAspectRatio(previewSize));
 
-        CameraTextureTransformer cameraTextureTransformer =
-                new CameraTextureTransformer(cameraView, previewSize, displayRotation);
-        cameraTextureTransformer.configureTransform(cameraView.getWidth(), cameraView.getHeight());
+        Handlers.getMainThreadHandler().post(() -> {
+            cameraView.setAspectRatio(previewSize);
+            new CameraTextureTransformer(cameraView, previewSize, displayRotation)
+                    .configureTransform(cameraView.getWidth(), cameraView.getHeight());
+        });
 
         CountDownLatch cameraOpened = new CountDownLatch(1);
         cameraManager.openCamera(
