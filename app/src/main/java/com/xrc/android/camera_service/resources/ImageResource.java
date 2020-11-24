@@ -24,14 +24,13 @@ public class ImageResource extends ServerResource {
         Observable<byte[]> captureImageObservable = cameraController.getCaptureImageObservable();
         CountDownLatch imageRetrieved = new CountDownLatch(1);
 
-        try (AutoCloseable subscription = new AutoDisposable(
+        try (AutoCloseable ignored = new AutoDisposable(
                 captureImageObservable.subscribe(bytes -> {
                     response.set(new ByteArrayRepresentation(
                             bytes, org.restlet.data.MediaType.IMAGE_JPEG));
                     imageRetrieved.countDown();
                 }))) {
 
-            cameraController.captureImage();
             imageRetrieved.await();
 
             return response.get();

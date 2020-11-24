@@ -62,8 +62,6 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
 
     private ImageReader captureImageReader;
 
-    private CaptureRequest.Builder captureRequest;
-
     private PublishSubject<byte[]> captureImageObservable;
 
     private int displayRotation;
@@ -99,34 +97,6 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
     void stopPreview() {
 
         closeCamera();
-    }
-
-    public void captureImage() {
-        try {
-            stopRepeatingPreviewRequest();
-
-            CountDownLatch captureCompleted = new CountDownLatch(1);
-            cameraSession.capture(
-                    captureRequest.build(),
-                    new CameraCaptureSession.CaptureCallback() {
-                        @Override
-                        public void onCaptureCompleted(
-                                CameraCaptureSession session, CaptureRequest request,
-                                TotalCaptureResult result) {
-
-                            super.onCaptureCompleted(session, request, result);
-
-                            captureCompleted.countDown();
-                        }
-                    },
-                    backgroundHandler);
-            captureCompleted.await();
-
-            setRepeatingPreviewRequest();
-
-        } catch (CameraAccessException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public Observable<byte[]> getCaptureImageObservable() {
@@ -230,6 +200,8 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
         captureImageReader = ImageReader.newInstance(previewSize.getWidth(),
                 previewSize.getHeight(),
                 ImageFormat.JPEG, /*maxImages*/2);
+        Surface captureSurface = captureImageReader.getSurface();
+        previewRequest.addTarget(captureSurface);
 
         Observable<byte[]> coldImageObservable = Observable.create(emitter ->
                 captureImageReader.setOnImageAvailableListener(reader -> {
@@ -244,10 +216,6 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
                         backgroundHandler));
         captureImageObservable = PublishSubject.create();
         coldImageObservable.subscribe(captureImageObservable);
-
-        Surface captureSurface = captureImageReader.getSurface();
-        captureRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-        captureRequest.addTarget(captureSurface);
 
         CountDownLatch sessionCreated = new CountDownLatch(1);
         cameraDevice.createCaptureSession(
@@ -338,7 +306,6 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
             setFocusMode((Integer) value);
         } else {
             previewRequest.set(requestKey, value);
-            captureRequest.set(requestKey, value);
         }
     }
 
@@ -348,12 +315,9 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
             case CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO:
                 previewRequest.set(CaptureRequest.CONTROL_AF_MODE,
                         CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
-                captureRequest.set(CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
                 break;
             default:
                 previewRequest.set(CaptureRequest.CONTROL_AF_MODE, focusMode);
-                captureRequest.set(CaptureRequest.CONTROL_AF_MODE, focusMode);
 
         }
     }
