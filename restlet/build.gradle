@@ -6,10 +6,11 @@ version '1.0'
 
 sourceCompatibility = 1.8
 
-repositories {
-    mavenCentral()
-}
+//repositories {
+////    mavenCentral()
+////    jcenter()
+//}
 
 dependencies {
-    implementation 'org.restlet.android:org.restlet:2.3.12'
+    implementation 'org.restlet.android:org.restlet:2.4.3'
 }

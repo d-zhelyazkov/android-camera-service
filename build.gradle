@@ -22,10 +22,16 @@ allprojects {
         google()
         jcenter()
         mavenLocal()
+//
+//        flatDir {
+//            dirs "$rootProject.projectDir/libs"
+//        }
+
 
         maven {
             url "https://maven.restlet.talend.com"
         }
+
 
     }
 }

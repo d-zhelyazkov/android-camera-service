@@ -23,9 +23,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'org.restlet.android:org.restlet:2.3.12'
-    implementation 'org.restlet.android:org.restlet.ext.jackson:2.3.1'
-    implementation 'org.restlet.android:org.restlet.ext.nio:2.3.12'
+    implementation 'org.restlet.android:org.restlet:2.4.3'
+    implementation 'org.restlet.android:org.restlet.ext.jackson:2.4.3'
+    implementation 'org.restlet.android:org.restlet.ext.nio:2.4.3'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
     implementation 'com.xrc:java-utils:1.0-SNAPSHOT'
     implementation project(path: ':android')
