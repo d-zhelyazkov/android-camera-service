@@ -6,6 +6,7 @@ import com.xrc.android.hardware.camera2.settings.impl.AutoExposureLockController
 import com.xrc.android.hardware.camera2.settings.impl.AutoExposureModeController;
 import com.xrc.android.hardware.camera2.settings.impl.AutoFocusModeController;
 import com.xrc.android.hardware.camera2.settings.impl.ExposureTimeController;
+import com.xrc.android.hardware.camera2.settings.impl.FocusDistanceController;
 import com.xrc.android.hardware.camera2.settings.impl.SafeCameraSettingController;
 import com.xrc.android.hardware.camera2.settings.impl.SensitivityController;
 import com.xrc.android.hardware.camera2.settings.impl.StringSettingAdapter;
@@ -51,6 +52,9 @@ public class CameraSettingsManager {
                 break;
             case AF_MODE:
                 controller = new AutoFocusModeController(cameraController);
+                break;
+            case FOCUS_DISTANCE:
+                controller = new FocusDistanceController(cameraController);
                 break;
             case AE_MODE:
                 controller = new AutoExposureModeController(cameraController);

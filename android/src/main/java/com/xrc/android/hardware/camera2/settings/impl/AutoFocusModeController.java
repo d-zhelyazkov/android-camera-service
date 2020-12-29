@@ -3,6 +3,7 @@ package com.xrc.android.hardware.camera2.settings.impl;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
+
 import com.xrc.android.hardware.camera2.CameraController;
 import com.xrc.android.hardware.camera2.settings.AutoFocusMode;
 import com.xrc.android.hardware.camera2.settings.CameraSetting;
@@ -23,12 +24,13 @@ public class AutoFocusModeController extends EnumSettingControllerBase<AutoFocus
 
     @Override
     public boolean isEditable() {
-        //TODO improve this when ModeController and FocusDistanceController are introduced
+        //TODO improve this when ModeController
         Integer controlMode = cameraController.getCaptureResultValue(CaptureResult.CONTROL_MODE);
-        Float minFocusDistance =
-                cameraController.getCameraCharacteristic(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE);
+
+        FocusDistanceController focusDistanceController = new FocusDistanceController(this.cameraController);
+
         return ((controlMode == CaptureResult.CONTROL_MODE_AUTO)
-                && (minFocusDistance > 0));
+                && !focusDistanceController.isFixed());
     }
 
 }
