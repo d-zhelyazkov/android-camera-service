@@ -11,6 +11,7 @@ public class FocusModeMapper {
 
     static {
         Map<FocusMode, AutoFocusMode[]> map = new HashMap<>();
+        map.put(FocusMode.MANUAL, new AutoFocusMode[]{AutoFocusMode.OFF});
         map.put(FocusMode.AUTO, new AutoFocusMode[]{AutoFocusMode.AUTO});
         map.put(FocusMode.MACRO, new AutoFocusMode[]{AutoFocusMode.MACRO});
         map.put(FocusMode.CONTINUOUS, new AutoFocusMode[]{

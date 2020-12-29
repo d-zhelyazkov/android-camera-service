@@ -6,6 +6,7 @@ import com.xrc.util.Arrays;
 public enum Setting {
     ISO(CameraSetting.ISO),
     FOCUS_MODE(CameraSetting.AF_MODE),
+    FOCUS_DISTANCE(CameraSetting.FOCUS_DISTANCE),
     AE_MODE(CameraSetting.AE_MODE),
     AE_COMPENSATION(CameraSetting.AE_COMPENSATION),
     AE_LOCK(CameraSetting.AE_LOCK),
