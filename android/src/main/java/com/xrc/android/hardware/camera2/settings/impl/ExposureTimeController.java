@@ -23,12 +23,6 @@ public class ExposureTimeController extends RangeSettingControllerBase<Long> {
     }
 
     @Override
-    public Stream<Long> getValues() {
-        Range<Long> valueRange = getInternalValueRange();
-        return Stream.of(valueRange.getLower(), valueRange.getUpper());
-    }
-
-    @Override
     public Long parseValue(String str) {
         return Long.parseLong(str);
     }
