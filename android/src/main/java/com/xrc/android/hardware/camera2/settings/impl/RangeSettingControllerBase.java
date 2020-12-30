@@ -62,4 +62,13 @@ public abstract class RangeSettingControllerBase<T extends Comparable<T>>
         return cameraController.getCameraCharacteristic(rangeKey);
     }
 
+    @Override
+    public T getValue() {
+        //// FIXME: 30/12/20
+        // this method has the same implementation as the base one
+        // but for some reason throws the following exception if not overridden...
+        // No virtual method getValue()Ljava/lang/Comparable; in class Lcom/xrc/android/hardware/camera2/settings/impl/SensitivityController; or its super classes (declaration of 'com.xrc.android.hardware.camera2.settings.impl.SensitivityController' appears in /data/app/com.xrc.android.camera_service-MEYPTpV3AluaNqIY54Iqxg==/base.apk!classes4.dex)
+        return cameraController.getCaptureResultValue(resultKey);
+    }
+
 }
