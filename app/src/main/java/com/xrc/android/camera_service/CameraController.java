@@ -22,8 +22,9 @@ import android.view.Surface;
 
 import com.xrc.android.example.AutoFitTextureView;
 import com.xrc.android.example.CameraTextureTransformer;
-import com.xrc.android.example.SizeAreaComparator;
 import com.xrc.android.os.Handlers;
+import com.xrc.android.util.Display;
+import com.xrc.android.util.Sizes;
 import com.xrc.android.view.AbstractSurfaceTextureListener;
 import com.xrc.lang.CloseableUtils;
 
@@ -61,6 +62,8 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
     private ImageReader captureImageReader;
 
     private PublishSubject<byte[]> captureImageObservable;
+
+//    private PublishSubject<CaptureResult> captureResults = PublishSubject.create();
 
     private int displayRotation;
 
@@ -254,10 +257,14 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
                         latch.countDown();
 
                         captureResultRef.set(result);
+                        synchronized (captureResultRef) {
+                            captureResultRef.notifyAll();
+                        }
                     }
                 },
                 backgroundHandler);
         latch.await();
+//        captureResultRef.wait();
     }
 
     private void stopRepeatingPreviewRequest() throws CameraAccessException {
@@ -322,6 +329,11 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
                 previewRequest.set(CaptureRequest.CONTROL_AF_MODE, focusMode);
 
         }
+    }
+
+    @Override
+    public AtomicReference<CaptureResult> getCaptureResult() {
+        return captureResultRef;
     }
 
     /**

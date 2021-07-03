@@ -5,6 +5,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.util.Pair;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public interface CameraController {
 
     <T> T getCaptureResultValue(CaptureResult.Key<T> resultKey);
@@ -14,5 +16,7 @@ public interface CameraController {
     void setCaptureRequestValues(Pair<CaptureRequest.Key<Object>, Object>[] values);
 
     <T> T getCameraCharacteristic(CameraCharacteristics.Key<T> characteristicKey);
+
+    AtomicReference<CaptureResult> getCaptureResult();
 
 }
