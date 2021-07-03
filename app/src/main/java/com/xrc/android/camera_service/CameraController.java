@@ -39,8 +39,6 @@ import io.reactivex.subjects.PublishSubject;
 
 public class CameraController implements com.xrc.android.hardware.camera2.CameraController {
 
-    private static final Size OPTIMAL_PREVIEW_SIZE = new Size(1280, 720);
-
     private final int cameraType;
 
     private final AtomicReference<CaptureResult> captureResultRef = new AtomicReference<>();
@@ -268,12 +266,16 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
     }
 
     private Size resolveOptimalPreviewSize(Size[] previewSizes) {
+        Size displaySize = Display.size();
+        if (Sizes.type(displaySize) == Sizes.Type.PORTRAIT) {
+            displaySize = Sizes.rotate(displaySize);
+        }
 
+        Size finalDisplaySize = displaySize;
         Optional<Size> optionalSize = Arrays.stream(previewSizes)
-                .filter(size ->
-                        ((size.getWidth() <= OPTIMAL_PREVIEW_SIZE.getWidth())
-                                && (size.getHeight() <= OPTIMAL_PREVIEW_SIZE.getHeight())))
-                .max(new SizeAreaComparator());
+                .filter(size -> Sizes.ratioMatch(size, finalDisplaySize, 0.1f))
+                .filter(size -> Sizes.compare(size, finalDisplaySize) <= 0)
+                .findFirst();
         if (!optionalSize.isPresent())
             throw new RuntimeException("Cannot resolve optimal preview size.");
 
