@@ -39,7 +39,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public class CameraController implements com.xrc.android.hardware.camera2.CameraController {
 
-    private static final Size OPTIMAL_PREVIEW_SIZE = new Size(1280, 720);
+    private static final Size OPTIMAL_PREVIEW_SIZE = new Size(1600, 720);
 
     private final int cameraType;
 
