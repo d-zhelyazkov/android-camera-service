@@ -10,4 +10,6 @@ public enum CameraSetting {
     AE_LOCK,
     AE_COMPENSATION,
     EXPOSURE_TIME,
+
+    RES,
 }

@@ -4,6 +4,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.util.Pair;
+import android.util.Size;
 
 public interface CameraController {
 
@@ -14,5 +15,7 @@ public interface CameraController {
     void setCaptureRequestValues(Pair<CaptureRequest.Key<Object>, Object>[] values);
 
     <T> T getCameraCharacteristic(CameraCharacteristics.Key<T> characteristicKey);
+
+    Size getResolution();
 
 }

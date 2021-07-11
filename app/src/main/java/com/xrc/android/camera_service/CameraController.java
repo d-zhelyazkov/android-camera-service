@@ -39,7 +39,7 @@ import io.reactivex.subjects.PublishSubject;
 
 public class CameraController implements com.xrc.android.hardware.camera2.CameraController {
 
-    private static final Size OPTIMAL_PREVIEW_SIZE = new Size(1600, 720);
+    private static final Size OPTIMAL_RES = new Size(960, 540);
 
     private final int cameraType;
 
@@ -47,7 +47,7 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
 
     private CameraManager cameraManager;
 
-    private Size previewSize;
+    private Size resolution;
 
     private final Handler backgroundHandler = Handlers.getNewThreadHandler(
             "camera_background_thread");
@@ -143,6 +143,11 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
         }
     }
 
+    @Override
+    public Size getResolution() {
+        return resolution;
+    }
+
     private void setUpCamera() throws CameraAccessException, SecurityException,
             InterruptedException {
         String cameraId = findCameraId();
@@ -154,11 +159,11 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
         assert (streamConfigurationMap != null);
 
         Size[] outputSizes = streamConfigurationMap.getOutputSizes(SurfaceTexture.class);
-        previewSize = resolveOptimalPreviewSize(outputSizes);
+        resolution = resolveResolution(outputSizes);
 
         Handlers.getMainThreadHandler().post(() -> {
-            cameraView.setAspectRatio(previewSize);
-            new CameraTextureTransformer(cameraView, previewSize, displayRotation)
+            cameraView.setAspectRatio(resolution);
+            new CameraTextureTransformer(cameraView, resolution, displayRotation)
                     .configureTransform(cameraView.getWidth(), cameraView.getHeight());
         });
 
@@ -192,13 +197,13 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
 
     private void createPreviewSession() throws CameraAccessException, InterruptedException {
         SurfaceTexture surfaceTexture = cameraView.getSurfaceTexture();
-        surfaceTexture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
+        surfaceTexture.setDefaultBufferSize(resolution.getWidth(), resolution.getHeight());
         Surface previewSurface = new Surface(surfaceTexture);
         previewRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         previewRequest.addTarget(previewSurface);
 
-        captureImageReader = ImageReader.newInstance(previewSize.getWidth(),
-                previewSize.getHeight(),
+        captureImageReader = ImageReader.newInstance(resolution.getWidth(),
+                resolution.getHeight(),
                 ImageFormat.JPEG, /*maxImages*/2);
         Surface captureSurface = captureImageReader.getSurface();
         previewRequest.addTarget(captureSurface);
@@ -267,12 +272,12 @@ public class CameraController implements com.xrc.android.hardware.camera2.Camera
         cameraSession.abortCaptures();
     }
 
-    private Size resolveOptimalPreviewSize(Size[] previewSizes) {
+    private Size resolveResolution(Size[] previewSizes) {
 
         Optional<Size> optionalSize = Arrays.stream(previewSizes)
                 .filter(size ->
-                        ((size.getWidth() <= OPTIMAL_PREVIEW_SIZE.getWidth())
-                                && (size.getHeight() <= OPTIMAL_PREVIEW_SIZE.getHeight())))
+                        ((size.getWidth() <= OPTIMAL_RES.getWidth())
+                                && (size.getHeight() <= OPTIMAL_RES.getHeight())))
                 .max(new SizeAreaComparator());
         if (!optionalSize.isPresent())
             throw new RuntimeException("Cannot resolve optimal preview size.");

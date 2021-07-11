@@ -7,6 +7,7 @@ import com.xrc.android.hardware.camera2.settings.impl.AutoExposureModeController
 import com.xrc.android.hardware.camera2.settings.impl.AutoFocusModeController;
 import com.xrc.android.hardware.camera2.settings.impl.ExposureTimeController;
 import com.xrc.android.hardware.camera2.settings.impl.FocusDistanceController;
+import com.xrc.android.hardware.camera2.settings.impl.ResolutionController;
 import com.xrc.android.hardware.camera2.settings.impl.SafeCameraSettingController;
 import com.xrc.android.hardware.camera2.settings.impl.SensitivityController;
 import com.xrc.android.hardware.camera2.settings.impl.StringSettingAdapter;
@@ -67,6 +68,9 @@ public class CameraSettingsManager {
                 break;
             case EXPOSURE_TIME:
                 controller = new ExposureTimeController(cameraController);
+                break;
+            case RES:
+                controller = new ResolutionController(cameraController);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + setting);
